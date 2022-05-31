@@ -1,2 +1,2 @@
 #!/bin/bash
-func () {BEST=School}
+export BEST="School"
