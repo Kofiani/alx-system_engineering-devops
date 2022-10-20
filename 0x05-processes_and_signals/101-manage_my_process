@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Comment
 
 if [ "$1" == "start" ]
 then

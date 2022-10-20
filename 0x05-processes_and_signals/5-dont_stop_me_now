@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
+# Comment
 
 kill "$(pgrep -f 4-to_infinity_and_beyond)"
