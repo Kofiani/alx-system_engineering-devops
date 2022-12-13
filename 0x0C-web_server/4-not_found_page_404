@@ -1,29 +1,38 @@
 #!/usr/bin/env bash
-# 404 page
-sudo apt-get update -y
-sudo apt-get install nginx -y
-sudo chown -R ubuntu:ubuntu /var/www/
-sudo chown -R ubuntu:ubuntu /etc/nginx/
-if [ -f /var/www/html/index.nginx-debian.html ]; then
-	sudo echo "Holberton School for the win!" | sudo tee /var/www/html/index.nginx-debian.html
-fi
-if [ -f /usr/share/nginx/html/index.html ]; then
-	sudo echo "Holberton School for the win!" | sudo tee /usr/share/nginx/html/index.html
-fi
-if [ -f /etc/nginx/sites-enabled/default ]; then
-	sed -i -E 's/listen [0-9]+ default_server/listen 80 default_server/g' /etc/nginx/sites-enabled/default
-	sed -i -E 's/listen \[::\]:[0-9]+ default_server/listen [::]:80 default_server/g' /etc/nginx/sites-enabled/default
-fi
-if [ -f /etc/nginx/nginx.conf ]; then
-	sed -i -E 's/listen [0-9]+ default_server/listen 80 default_server/g' /etc/nginx/nginx.conf
-	sed -i -E 's/listen \[::\]:[0-9]+ default_server/listen [::]:80 default_server/g' /etc/nginx/nginx.conf
-fi
-sudo /etc/init.d/nginx start
-# Here Configures your Nginx server so that /redirect_me is redirecting to another page.
-config_file=/etc/nginx/sites-enabled/default
-sudo sed -i -E "0,/listen \[::]:[0-9]+ .+;/s//& \n rewrite \^\/redirect_me\/\$ https:\/\/www.youtube.com\/watch\?v=w6E7aQnA4Ws permanent\;/" "$config_file"
-sudo /etc/init.d/nginx restart
-# Here Configure your Nginx server to have a custom 404 page
-sudo sed -i -E "0,/location (.)+\{/s//\n\terror_page 404 \/page404.html\;\n\t&/" "$config_file"
-echo "Ceci n'est pas une page" > /var/www/html/page404.html
-sudo /etc/init.d/nginx restart
+#configure a custom 404 page
+
+sudo apt-get update
+sudo apt-get -y install nginx
+ufw allow 'Nginx HTTP'
+chmod -R 755 /var/www
+echo 'Hello World' > /var/www/html/index.html
+
+new_config=\
+"server {
+        listen 80 default_server;
+        listen [::]:80 default_server;
+               root /var/www/html;
+        index index.html index.htm index.nginx-debian.html;
+        server_name _;
+        location / {
+                try_files \$uri \$uri/ =404;
+        }
+        error_page 404 /404.html;
+        location  /404.html {
+            internal;
+        }
+        
+        if (\$request_filename ~ redirect_me){
+            rewrite ^ 4-not_found_page_404 permanent;
+        }
+}
+"
+echo "Ceci n'est pas une page" > /var/www/html/404.html
+echo "$new_config" > /etc/nginx/sites-available/default
+
+if [ "$(pgrep nginx)" -le 0 ];
+then
+    service nginx start
+else
+    service nginx restart
+fi;
