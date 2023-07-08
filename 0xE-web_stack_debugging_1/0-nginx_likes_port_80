@@ -1,6 +1,9 @@
 #!/usr/bin bash
 # Configure the server
 
-rm /etc/nginx/sites-enabled/default
-ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled
-service nginx restart 
+apt-get update
+apt-get -y install net-tools
+rm /etc/nginx/sites-available/*
+rm /etc/nginx/sites-enabled/*~
+sed -i 's/8080/80/g' /etc/nginx/sites-enabled/default
+sudo service nginx restart
