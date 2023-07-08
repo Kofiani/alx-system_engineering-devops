@@ -1,4 +1,4 @@
-#!/usr/bin bash
+#!/usr/bin/env bash
 # Configure the server
 
 service nginx start
